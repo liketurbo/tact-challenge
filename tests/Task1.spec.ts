@@ -22,14 +22,6 @@ describe('Task1', () => {
                 queryId: 0n,
             }
         );
-        /*
-        expect(deployResult.transactions).toHaveTransaction({
-            from: deployer.address,
-            to: task1.address,
-            deploy: true,
-            success: true,
-        });
-        */
     });
 
     it.skip('initial 0', async () => {
