@@ -2,38 +2,42 @@ import "@stdlib/deploy";
 
 /*
   TASK 5 - NFT random swap 
-  The smartcontract contains a bunch of different NFTs.
-  A user brings his NFT and sends it to the smartcontract, with 2.1TON (2 for admin's profit, 0.1 for gas) in attachment (as fee for swap).
-  The smartcontract randomly chooses some nft from the already available nfts and gives it to user in exchange for the brought nft.
-  Admin address can deposit NFTs without swap logic. 
-  Admin can withdrawal all NFTs + all TONs that was collected from users as fees.
-  Implement getter that will show NFT addresses on the balance of smartcontract.
-  Implement getter that will show amount of fees collected.
+  The smart contract contains a bunch of different NFTs.
+  A user brings his NFT (sends it to the smart contract), with 2.1 TON (2 for admin's profit, 0.1 for gas) in attachment (as fee for swap).
+  The smart contract randomly chooses some NFT from the available NFTs (including the newly incoming one) and gives it to the user in exchange for the brought NFT (but occasionally just returns user's NFT in some cases).
+  Admin can deposit NFTs without swap logic. Any NFT received from the admin is considered deposited. Admin can't swap.
+  Admin can withdraw all NFTs at once, and also all TONs collected from users as fees.
+  Implement getter that will return NFT addresses held by the smart contract.
+  Implement getter that will return the amount of admin`s profit collected.
 
-  All in all, smartcontract should have this logic:
-  Transactions
-  * AdminWithdrawalFees 
-   - sc should check that sender is admin / otherwise throw "Insufficient privelegies"
-   - sc should send all collected fees to admin exept 0.1tons
+  In details, the smart contract (later: SC) should have this logic:
+  Messages
+  * AdminWithdrawalProfit 
+   - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
+   - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
+     In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
   * AdminWithdrawalAllNFTs
-   - sc should send max 100 nfts in one batch
-   - sc should check that incoming tx tons value will be enougth for nft withdrawal (ton("1") + self.total * ton("0.08")) thorw "Insufficent funds" otherwise
-   - sc should check that sender is admin, throw "Invalid sender" otherwise
-   - sc should send nft one by one to admin 
+   - SC should check that incoming tx TON value is enough for NFT withdrawal. Specifically, at least: (1 + totalNftsHeld * 0.08) TONs. Otherwise throw "Insufficent funds"
+   - SC should check that sender is the admin, throw "Invalid sender" otherwise
+   - If all checks pass, SC should send NFTs one by one to the admin 
+   - SC should be able to withdraw all NFTs by a single message from admin
   * OwnershipAssigned 
-   - if prevOwner is owner (admin) address, then add nft to collection
-   - if value of ton attached is les then 2.1 TON then stop execution and return nft back
-   - randomly select nft to send from all nfts that smartcontract have
-   - send selected nft to sender with all remaining balance (exept of admin profit / collected fees from this and other swaps)
+   - if prevOwner is the owner's (admin) address, then add NFT to the collection
+   - if value of TON attached is less then 2.1 TON then stop execution and return NFT back,
+     but only in case that TON attached is enough to process refund without losing TONs on the SC's balance
+   - randomly select NFT to send from all the NFTs that smart contract has
+   - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
+     In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
   
   Getters
-  * fees
-   - return how much collected fees is available to withdrawal for admin (all fees - 0.1ton)
+  * profit
+   - returns how much collected fees is available to withdraw for the admin (all fees minus 0.1 TON)
   * nfts
-   - should return dict of stored nfts with nft ids as keys and nfts address as values 
+   - returns dict of held NFTs with NFT indexes (sequential numbers from 0, 1, 2 ... and up to 'totalNftsHeld-1') as keys and NFT address as values 
+     the order of NFTs in this dictionary doesn't matter
 */
 
-message AdminWithdrawalFees {
+message AdminWithdrawalProfit {
   queryId: Int as uint64;
 }
 
@@ -41,7 +45,7 @@ message AdminWithdrawalAllNFTs {
   queryId: Int as uint64;
 }
 
-message AdminFetchFees {
+message AdminFetchProfit {
   queryId: Int as uint64;
 }
 
@@ -63,24 +67,118 @@ message(0x5fcc3d14) Transfer {
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
+  const MinTonForStorage: Int = ton("0.1"); // enough for 1 KB of storage for 25 years
+  nftsArr: map<Int as uint16, Address>;
+  nftsLen: Int as uint8 = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
-    self.seed = seed;
+    self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
   }
 
   receive(msg: OwnershipAssigned) {
+    if (msg.prevOwner == self.owner) { // from admin
+      self.nftsPush(sender());
+    } else {
+      if (context().value >= ton("2.1")) { // enough gas
+        self.nftsPush(sender());
+        let i: Int = random(0, self.nftsLen - 1);
+        let nft: Address = self.nftsRetain(i);
+        send(SendParameters{
+          to: nft,
+          bounce: true,
+          value: ton("0.1"),
+          mode: SendIgnoreErrors,
+          body: Transfer { 
+            queryId: msg.queryId,           
+            newOwner: msg.prevOwner, 
+            responseDestination: msg.prevOwner, 
+            customPayload: null, 
+            forwardAmount: ton("0.1"), 
+            forwardPayload: emptySlice() 
+          }.toCell()
+        });
+      } else {
+        send(SendParameters{
+          to: sender(),
+          bounce: true,
+          value: context().value,
+          mode: SendIgnoreErrors,
+          body: Transfer { 
+            queryId: msg.queryId,           
+            newOwner: msg.prevOwner, 
+            responseDestination: msg.prevOwner, 
+            customPayload: null, 
+            forwardAmount: context().value, 
+            forwardPayload: emptySlice() 
+          }.toCell()
+        });
+      }
+    }
   }
 
-  receive(msg: AdminWithdrawalFees) {
+  receive(msg: AdminWithdrawalProfit) {
+    require(sender() == self.owner, "Insufficient privelegies");
+    send(SendParameters{
+        to: sender(),
+        bounce: true,
+        value: myBalance() - context().value - self.MinTonForStorage,
+        mode: SendRemainingValue + SendIgnoreErrors,
+        body: AdminFetchProfit {
+          queryId: msg.queryId
+        }.toCell()
+    });
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
+    require(myBalance() * 100 >= (100 + self.nftsLen * 8), "Insufficent funds");
+    require(sender() == self.owner, "Invalid sender");
+    let i: Int = 0;
+    while (i < self.nftsLen) {            // loop while a condition is true
+      send(SendParameters{
+        to: self.nftsArr.get(i)!!,
+        bounce: true,
+        value: 0,
+        mode: SendRemainingValue + SendIgnoreErrors,
+        body: Transfer { 
+          queryId: msg.queryId + i,            
+          newOwner: self.owner, 
+          responseDestination: self.owner, 
+          customPayload: null, 
+          forwardAmount: ton("1"), 
+          forwardPayload: emptySlice() 
+        }.toCell()
+      });
+      i = i + 1;
+    }
+    self.nftsClear();
   }
 
-  get fun fees(): Int { 
+  get fun profit(): Int { 
+    return myBalance() - ton("0.1");
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
+    return self.nftsArr;
+  }
+
+  fun nftsPush(nft: Address) {
+    self.nftsArr.set(self.nftsLen, nft);
+    self.nftsLen = self.nftsLen + 1;
+  }
+
+  fun nftsClear() {
+    self.nftsArr = emptyMap();
+    self.nftsLen = 0;
+  }
+
+  fun nftsRetain(i: Int): Address {
+    require(self.nftsLen > 0, "Array is empty");
+    let nft: Address = self.nftsArr.get(i)!!;
+    let last: Address = self.nftsArr.get(self.nftsLen - 1)!!;
+    self.nftsArr.set(i, last);
+    self.nftsArr.set(self.nftsLen - 1, null);
+    self.nftsLen = self.nftsLen - 1;
+    return nft;
   }
 }
