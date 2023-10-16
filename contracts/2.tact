@@ -44,7 +44,7 @@ contract Task2 with Deployable {
       body: beginCell()
         .storeAddress(context().sender)
         .storeRef(msg.asCell())
-        .asCell()
+        .endCell()
     });
   }
 }
