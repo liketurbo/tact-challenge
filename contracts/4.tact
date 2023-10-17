@@ -69,7 +69,7 @@ contract Task4 with Deployable {
       );
     } else {
       self.lockOwner = msg.prevOwner;
-      self.lockTime = msg.forwardPayload.loadUint(32);
+      self.lockTime = now() + msg.forwardPayload.loadUint(32);
       self.lockNft = sender();
     }
   }
