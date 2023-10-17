@@ -48,16 +48,16 @@ message NftWithdrawal {
 
 contract Task4 with Deployable {
   seed: Int as uint128;
-  time: Int? as uint32;
-  nft: Address?;
-  owner: Address?;
+  lockTime: Int? as uint32;
+  lockNft: Address?;
+  lockOwner: Address?;
   
   init(seed: Int) {
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
   }
 
   receive(msg: OwnershipAssigned) {
-    if (self.nft != null) {
+    if (self.lockNft != null) {
       self.reply(Transfer { 
           queryId: 0,            
           newOwner: msg.prevOwner, 
@@ -68,32 +68,32 @@ contract Task4 with Deployable {
         }.toCell()
       );
     } else {
-      self.time = msg.forwardPayload.loadUint(32);
-      self.owner = msg.prevOwner;
-      self.nft = sender();
+      self.lockTime = msg.forwardPayload.loadUint(32);
+      self.lockOwner = msg.prevOwner;
+      self.lockNft = sender();
     }
   }
 
   receive(msg: NftWithdrawal) {
-    require(self.time != null, "Time is not set");
-    require(self.owner == sender(), "Invalid sender");
-    require(self.nft == msg.nftAddress, "Invalid nft");
+    require(self.lockTime != null, "Time is not set");
+    require(self.lockOwner == sender(), "Invalid sender");
+    require(self.lockNft == msg.nftAddress, "Invalid nft");
 
-    if (now() > self.time!!) {
+    if (now() > self.lockTime!!) {
       send(SendParameters{
-        to: self.owner!!,
+        to: self.lockOwner!!,
         value: 0,
         mode: SendRemainingValue,
         body: "NFT is still locked".asComment()
       });
     } else {
       send(SendParameters{
-        to: self.nft!!,
+        to: self.lockNft!!,
         value: 0,
         mode: SendRemainingValue,
         body: Transfer { 
           queryId: 0,            
-          newOwner: self.owner!!, 
+          newOwner: self.lockOwner!!, 
           responseDestination: myAddress(), 
           customPayload: null, 
           forwardAmount: ton("0.01"), 
@@ -104,15 +104,15 @@ contract Task4 with Deployable {
   }
 
   get fun time(): Int {
-    require(self.time != null, "Time is not set");
-    return self.time!! - now();
+    require(self.lockTime != null, "Time is not set");
+    return self.lockTime!! - now();
   }
 
   get fun nft(): Address? {
-    return self.nft;
+    return self.lockNft;
   }
 
   get fun owner(): Address? {
-    return self.owner;
+    return self.lockOwner;
   }
 }
