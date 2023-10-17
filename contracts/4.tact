@@ -87,9 +87,9 @@ contract Task4 with Deployable {
         body: Transfer { 
           queryId: 0,            
           newOwner: self.lockOwner!!, 
-          responseDestination: self.lockOwner!!, 
+          responseDestination: self.lockNft!!, 
           customPayload: null, 
-          forwardAmount: myBalance(), 
+          forwardAmount: 0, 
           forwardPayload: emptySlice() 
         }.toCell()
       });
