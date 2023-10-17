@@ -63,7 +63,7 @@ contract Task4 with Deployable {
       self.lockNft = sender();
     } else {
       self.reply(Transfer { 
-          queryId: 0,            
+          queryId: msg.queryId,            
           newOwner: msg.prevOwner, 
           responseDestination: msg.prevOwner, 
           customPayload: null, 
@@ -85,7 +85,7 @@ contract Task4 with Deployable {
         value: 0,
         mode: SendRemainingValue,
         body: Transfer { 
-          queryId: 0,            
+          queryId: msg.queryId,            
           newOwner: self.lockOwner!!, 
           responseDestination: self.lockOwner!!, 
           customPayload: null, 
