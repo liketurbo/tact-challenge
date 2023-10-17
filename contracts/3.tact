@@ -89,8 +89,6 @@ contract Task3 with Deployable {
       if (amountOfBJettonToSend > self.bAmount) {
         self.refund(msg);
       } else {
-        self.bAmount = self.bAmount - amountOfBJettonToSend;
-        self.aAmount = self.aAmount + msg.amount;
         send(SendParameters{
           to: self.jettonAddressB,
           bounce: false,
@@ -106,14 +104,14 @@ contract Task3 with Deployable {
             forwardPayload: emptySlice()
           }.toCell()
         });
+        self.bAmount = self.bAmount - amountOfBJettonToSend;
+        self.aAmount = self.aAmount + msg.amount;
       }
     } else {
       let amountOfAJettonToSend: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
       if (amountOfAJettonToSend > self.aAmount) {
         self.refund(msg);
       } else {
-        self.aAmount = self.aAmount - amountOfAJettonToSend;
-        self.bAmount = self.bAmount + msg.amount;
         send(SendParameters{
           to: self.jettonAddressA,
           bounce: false,
@@ -129,6 +127,8 @@ contract Task3 with Deployable {
             forwardPayload: emptySlice()
           }.toCell()
         });
+        self.aAmount = self.aAmount - amountOfAJettonToSend;
+        self.bAmount = self.bAmount + msg.amount;
       }
     }
   }
