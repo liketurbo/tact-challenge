@@ -77,7 +77,6 @@ contract Task4 with Deployable {
   receive(msg: NftWithdrawal) {
     require(self.lockOwner == sender(), "Invalid sender");
     require(self.lockTime != null, "Time is not set");
-    require(self.lockNft == msg.nftAddress, "Invalid nft");
 
     if (self.lockTime!! > now()) {
       send(SendParameters{
@@ -90,7 +89,7 @@ contract Task4 with Deployable {
       send(SendParameters{
         to: self.lockNft!!,
         value: 0,
-        mode: SendRemainingValue,
+        mode: SendRemainingBalance,
         body: Transfer { 
           queryId: 0,            
           newOwner: self.lockOwner!!, 
