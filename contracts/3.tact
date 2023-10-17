@@ -95,7 +95,7 @@ contract Task3 with Deployable {
           to: self.jettonAddressB,
           bounce: true,
           value: context().value,
-          mode: SendIgnoreErrors,
+          mode: 0,
           body: TokenTransfer{
             queryId: msg.queryId,
             amount: amountOfBJettonToSend,
@@ -118,7 +118,7 @@ contract Task3 with Deployable {
           to: self.jettonAddressA,
           bounce: true,
           value: context().value,
-          mode: SendIgnoreErrors,
+          mode: 0,
           body: TokenTransfer{
             queryId: msg.queryId,
             amount: amountOfAJettonToSend,
@@ -139,7 +139,7 @@ contract Task3 with Deployable {
         to: self.jettonAddressA,
         bounce: true,
         value: context().value,
-        mode: SendIgnoreErrors,
+        mode: 0,
         body: TokenTransfer{
           queryId: msg.queryId,
           amount: msg.amount,
@@ -155,7 +155,7 @@ contract Task3 with Deployable {
         to: self.jettonAddressB,
         bounce: true,
         value: context().value,
-        mode: SendIgnoreErrors,
+        mode: 0,
         body: TokenTransfer{
           queryId: msg.queryId,
           amount: msg.amount,
