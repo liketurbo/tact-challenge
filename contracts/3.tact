@@ -68,39 +68,41 @@ contract Task3 with Deployable {
 
   receive(msg: TokenNotification) {
     require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "Token does not belong to the pair");
+    if (msg.from == self.owner) {
+      self.dope(msg);
+    } else {
+      self.swap(msg);
+    }
+  } 
+
+  fun dope(msg: TokenNotification) {
+    if (sender() == self.jettonAddressA) {
+      self.aAmount = self.aAmount + msg.amount;
+    } else {
+      self.bAmount = self.bAmount + msg.amount;
+    }
+  }
+
+  fun swap(msg: TokenNotification) {
     if (sender() == self.jettonAddressA) {
       let amountOfBJettonToSend: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
       if (amountOfBJettonToSend > self.bAmount) {
-        send(SendParameters{
-          to: self.jettonAddressA,
-          bounce: true,
-          value: 0,
-          mode: SendRemainingValue + SendIgnoreErrors,
-          body: TokenTransfer{
-            queryId: msg.queryId,
-            amount: msg.amount,
-            destination: msg.from,
-            responseDestination: null,
-            customPayload: null,
-            forwardTonAmount: ton("1"),
-            forwardPayload: emptySlice()
-          }.toCell()
-        });
+        self.refund(msg);
       } else {
         self.bAmount = self.bAmount - amountOfBJettonToSend;
         self.aAmount = self.aAmount + msg.amount;
         send(SendParameters{
           to: self.jettonAddressB,
           bounce: true,
-          value: 0,
-          mode: SendRemainingValue + SendIgnoreErrors,
+          value: context().value,
+          mode: SendIgnoreErrors,
           body: TokenTransfer{
             queryId: msg.queryId,
             amount: amountOfBJettonToSend,
             destination: msg.from,
             responseDestination: null,
             customPayload: null,
-            forwardTonAmount: ton("1"),
+            forwardTonAmount: context().value,
             forwardPayload: emptySlice()
           }.toCell()
         });
@@ -108,45 +110,66 @@ contract Task3 with Deployable {
     } else {
       let amountOfAJettonToSend: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
       if (amountOfAJettonToSend > self.aAmount) {
-        send(SendParameters{
-          to: self.jettonAddressB,
-          bounce: true,
-          value: 0,
-          mode: SendRemainingValue + SendIgnoreErrors,
-          body: TokenTransfer{
-            queryId: msg.queryId,
-            amount: msg.amount,
-            destination: msg.from,
-            responseDestination: null,
-            customPayload: null,
-            forwardTonAmount: ton("1"),
-            forwardPayload: emptySlice()
-          }.toCell()
-        });
+        self.refund(msg);
       } else {
         self.aAmount = self.aAmount - amountOfAJettonToSend;
         self.bAmount = self.bAmount + msg.amount;
         send(SendParameters{
           to: self.jettonAddressA,
           bounce: true,
-          value: 0,
-          mode: SendRemainingValue + SendIgnoreErrors,
+          value: context().value,
+          mode: SendIgnoreErrors,
           body: TokenTransfer{
             queryId: msg.queryId,
             amount: amountOfAJettonToSend,
             destination: msg.from,
             responseDestination: null,
             customPayload: null,
-            forwardTonAmount: ton("1"),
+            forwardTonAmount: context().value,
             forwardPayload: emptySlice()
           }.toCell()
         });
       }
     }
-  } 
-  
+  }
+
+  fun refund(msg: TokenNotification) {
+    if (sender() == self.jettonAddressA) {
+      send(SendParameters{
+        to: self.jettonAddressA,
+        bounce: true,
+        value: context().value,
+        mode: SendIgnoreErrors,
+        body: TokenTransfer{
+          queryId: msg.queryId,
+          amount: msg.amount,
+          destination: msg.from,
+          responseDestination: null,
+          customPayload: null,
+          forwardTonAmount: context().value,
+          forwardPayload: emptySlice()
+        }.toCell()
+      });
+    } else {
+      send(SendParameters{
+        to: self.jettonAddressB,
+        bounce: true,
+        value: context().value,
+        mode: SendIgnoreErrors,
+        body: TokenTransfer{
+          queryId: msg.queryId,
+          amount: msg.amount,
+          destination: msg.from,
+          responseDestination: null,
+          customPayload: null,
+          forwardTonAmount: context().value,
+          forwardPayload: emptySlice()
+        }.toCell()
+      });
+    }
+  }
+
   get fun price(jetton: Address): Int { 
-    require(jetton == self.jettonAddressA || jetton == self.jettonAddressB, "Token does not belong to the pair");
     if (jetton == self.jettonAddressA) {
       return self.aAmount * self.decimal / self.bAmount;
     } else {
@@ -155,7 +178,6 @@ contract Task3 with Deployable {
   }
   
   get fun balance(jetton: Address): Int { 
-    require(jetton == self.jettonAddressA || jetton == self.jettonAddressB, "Token does not belong to the pair");
     if (jetton == self.jettonAddressA) {
       return self.aAmount;
     } else {
