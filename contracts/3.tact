@@ -134,39 +134,17 @@ contract Task3 with Deployable {
   }
 
   fun refund(msg: TokenNotification) {
-    if (sender() == self.jettonAddressA) {
-      send(SendParameters{
-        to: self.jettonAddressA,
-        bounce: true,
-        value: context().value,
-        mode: 0,
-        body: TokenTransfer{
-          queryId: msg.queryId,
-          amount: msg.amount,
-          destination: msg.from,
-          responseDestination: msg.from,
-          customPayload: null,
-          forwardTonAmount: context().value,
-          forwardPayload: emptySlice()
-        }.toCell()
-      });
-    } else {
-      send(SendParameters{
-        to: self.jettonAddressB,
-        bounce: true,
-        value: context().value,
-        mode: 0,
-        body: TokenTransfer{
-          queryId: msg.queryId,
-          amount: msg.amount,
-          destination: msg.from,
-          responseDestination: msg.from,
-          customPayload: null,
-          forwardTonAmount: context().value,
-          forwardPayload: emptySlice()
-        }.toCell()
-      });
-    }
+    self.reply(
+      TokenTransfer{
+        queryId: msg.queryId,
+        amount: msg.amount,
+        destination: msg.from,
+        responseDestination: null,
+        customPayload: null,
+        forwardTonAmount: 0,
+        forwardPayload: emptySlice()
+      }.toCell()
+    );
   }
 
   get fun price(jetton: Address): Int { 
