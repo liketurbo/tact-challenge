@@ -93,11 +93,10 @@ contract Task4 with Deployable {
           forwardPayload: emptySlice() 
         }.toCell()
       });
+      self.lockTime = null;
+      self.lockNft = null;
+      self.lockOwner = null;
     }
-
-    self.lockTime = null;
-    self.lockNft = null;
-    self.lockOwner = null;
   }
 
   get fun time(): Int {
