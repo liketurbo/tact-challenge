@@ -83,13 +83,13 @@ contract Task4 with Deployable {
       send(SendParameters{
         to: self.lockNft!!,
         value: 0,
-        mode: SendRemainingBalance,
+        mode: SendRemainingBalance + SendPayGasSeparately,
         body: Transfer { 
           queryId: 0,            
           newOwner: self.lockOwner!!, 
           responseDestination: self.lockOwner!!, 
           customPayload: null, 
-          forwardAmount: 0, 
+          forwardAmount: myBalance(), 
           forwardPayload: emptySlice() 
         }.toCell()
       });
