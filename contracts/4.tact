@@ -58,51 +58,45 @@ contract Task4 with Deployable {
 
   receive(msg: OwnershipAssigned) {
     if (self.nft != null) {
-      send(SendParameters{
-        to: sender(),
-        bounce: true,
-        value: 0,
-        mode: SendRemainingValue + SendIgnoreErrors,
-        body: Transfer { 
-          queryId: msg.queryId,            
+      self.reply(Transfer { 
+          queryId: 0,            
           newOwner: msg.prevOwner, 
-          responseDestination: msg.prevOwner, 
+          responseDestination: myAddress(), 
           customPayload: null, 
-          forwardAmount: ton("1"), 
+          forwardAmount: ton("0.01"), 
           forwardPayload: emptySlice() 
         }.toCell()
-      });
+      );
     } else {
-      self.nft = sender();
       self.time = msg.forwardPayload.loadUint(32);
       self.owner = msg.prevOwner;
+      self.nft = sender();
     }
   }
 
   receive(msg: NftWithdrawal) {
     require(self.time != null, "Time is not set");
-    require(sender() == self.owner, "Invalid sender");
-    require(msg.nftAddress == self.nft, "Invalid nft");
+    require(self.owner == sender(), "Invalid sender");
+    require(self.nft == msg.nftAddress, "Invalid nft");
 
     if (now() > self.time!!) {
       send(SendParameters{
-        to: sender(),
-        value: 0, // TODO: https://github.com/tact-lang/tact/issues/31
-        mode: SendRemainingValue + SendIgnoreErrors, // TODO: issues/31
+        to: self.owner!!,
+        value: 0,
+        mode: SendRemainingValue,
         body: "NFT is still locked".asComment()
       });
     } else {
       send(SendParameters{
         to: self.nft!!,
-        bounce: true,
         value: 0,
-        mode: SendRemainingValue + SendIgnoreErrors,
+        mode: SendRemainingValue,
         body: Transfer { 
-          queryId: msg.queryId,            
+          queryId: 0,            
           newOwner: self.owner!!, 
-          responseDestination: self.owner!!, 
+          responseDestination: myAddress(), 
           customPayload: null, 
-          forwardAmount: ton("1"), 
+          forwardAmount: ton("0.01"), 
           forwardPayload: emptySlice() 
         }.toCell()
       });
