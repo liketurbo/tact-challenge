@@ -100,9 +100,9 @@ contract Task3 with Deployable {
             queryId: msg.queryId,
             amount: amountOfBJettonToSend,
             destination: msg.from,
-            responseDestination: msg.from,
+            responseDestination: null,
             customPayload: null,
-            forwardTonAmount: context().value,
+            forwardTonAmount: 0,
             forwardPayload: emptySlice()
           }.toCell()
         });
@@ -123,9 +123,9 @@ contract Task3 with Deployable {
             queryId: msg.queryId,
             amount: amountOfAJettonToSend,
             destination: msg.from,
-            responseDestination: msg.from,
+            responseDestination: null,
             customPayload: null,
-            forwardTonAmount: context().value,
+            forwardTonAmount: 0,
             forwardPayload: emptySlice()
           }.toCell()
         });
