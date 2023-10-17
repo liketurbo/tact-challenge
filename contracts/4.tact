@@ -79,7 +79,7 @@ contract Task4 with Deployable {
     require(self.lockTime != null, "Time is not set");
     require(self.lockNft == msg.nftAddress, "Invalid nft");
 
-    if (now() > self.lockTime!!) {
+    if (self.lockTime!! > now()) {
       send(SendParameters{
         to: self.lockOwner!!,
         value: 0,
