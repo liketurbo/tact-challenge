@@ -94,6 +94,10 @@ contract Task4 with Deployable {
         }.toCell()
       });
     }
+
+    self.lockTime = null;
+    self.lockNft = null;
+    self.lockOwner = null;
   }
 
   get fun time(): Int {
