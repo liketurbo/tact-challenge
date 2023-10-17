@@ -96,7 +96,7 @@ contract Task3 with Deployable {
           value: 0,
           mode: SendRemainingValue,
           body: TokenTransfer{
-            queryId: msg.queryId,
+            queryId: 0,
             amount: amountOfBJettonToSend,
             destination: msg.from,
             responseDestination: myAddress(),
@@ -119,7 +119,7 @@ contract Task3 with Deployable {
           value: 0,
           mode: SendRemainingValue,
           body: TokenTransfer{
-            queryId: msg.queryId,
+            queryId: 0,
             amount: amountOfAJettonToSend,
             destination: msg.from,
             responseDestination: myAddress(),
@@ -137,7 +137,7 @@ contract Task3 with Deployable {
   fun refund(msg: TokenNotification) {
     self.reply(
       TokenTransfer{
-        queryId: msg.queryId,
+        queryId: 0,
         amount: msg.amount,
         destination: msg.from,
         responseDestination: myAddress(),
