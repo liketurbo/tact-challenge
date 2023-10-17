@@ -48,7 +48,7 @@ message NftWithdrawal {
 
 contract Task4 with Deployable {
   seed: Int as uint128;
-  lockTime: Int? as uint32;
+  lockTime: Int as uint32 = 0;
   lockNft: Address?;
   lockOwner: Address?;
   
@@ -77,7 +77,7 @@ contract Task4 with Deployable {
   receive(msg: NftWithdrawal) {
     require(self.lockOwner == sender(), "Invalid sender");
 
-    if (self.lockTime!! > now()) {
+    if (self.lockTime > now()) {
       self.reply("NFT is still locked".asComment());
     } else {
       send(SendParameters{
@@ -93,14 +93,13 @@ contract Task4 with Deployable {
           forwardPayload: emptySlice() 
         }.toCell()
       });
-      self.lockTime = null;
       self.lockNft = null;
       self.lockOwner = null;
     }
   }
 
   get fun time(): Int {
-    return self.lockTime!! - now();
+    return self.lockTime - now();
   }
 
   get fun nft(): Address? {
