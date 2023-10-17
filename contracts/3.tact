@@ -78,7 +78,7 @@ contract Task3 with Deployable {
   fun dope(msg: TokenNotification) {
     if (sender() == self.jettonAddressA) {
       self.aAmount = self.aAmount + msg.amount;
-    } else {
+    } else if (sender() == self.jettonAddressB) {
       self.bAmount = self.bAmount + msg.amount;
     }
   }
@@ -107,7 +107,7 @@ contract Task3 with Deployable {
         self.bAmount = self.bAmount - amountOfBJettonToSend;
         self.aAmount = self.aAmount + msg.amount;
       }
-    } else {
+    } else if (sender() == self.jettonAddressB) {
       let amountOfAJettonToSend: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
       if (amountOfAJettonToSend > self.aAmount) {
         self.refund(msg);
