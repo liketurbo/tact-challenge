@@ -68,15 +68,15 @@ contract Task4 with Deployable {
         }.toCell()
       );
     } else {
-      self.lockTime = msg.forwardPayload.loadUint(32);
       self.lockOwner = msg.prevOwner;
+      self.lockTime = msg.forwardPayload.loadUint(32);
       self.lockNft = sender();
     }
   }
 
   receive(msg: NftWithdrawal) {
-    require(self.lockTime != null, "Time is not set");
     require(self.lockOwner == sender(), "Invalid sender");
+    require(self.lockTime != null, "Time is not set");
     require(self.lockNft == msg.nftAddress, "Invalid nft");
 
     if (now() > self.lockTime!!) {
