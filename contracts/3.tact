@@ -93,7 +93,7 @@ contract Task3 with Deployable {
         self.aAmount = self.aAmount + msg.amount;
         send(SendParameters{
           to: self.jettonAddressB,
-          bounce: true,
+          bounce: false,
           value: context().value,
           mode: 0,
           body: TokenTransfer{
@@ -116,7 +116,7 @@ contract Task3 with Deployable {
         self.bAmount = self.bAmount + msg.amount;
         send(SendParameters{
           to: self.jettonAddressA,
-          bounce: true,
+          bounce: false,
           value: context().value,
           mode: 0,
           body: TokenTransfer{
