@@ -92,15 +92,15 @@ contract Task3 with Deployable {
         send(SendParameters{
           to: self.jettonAddressB,
           bounce: false,
-          value: context().value,
-          mode: 0,
+          value: 0,
+          mode: SendRemainingValue,
           body: TokenTransfer{
             queryId: msg.queryId,
             amount: amountOfBJettonToSend,
             destination: msg.from,
             responseDestination: null,
             customPayload: null,
-            forwardTonAmount: 0,
+            forwardTonAmount: ton("0.01"),
             forwardPayload: emptySlice()
           }.toCell()
         });
@@ -115,15 +115,15 @@ contract Task3 with Deployable {
         send(SendParameters{
           to: self.jettonAddressA,
           bounce: false,
-          value: context().value,
-          mode: 0,
+          value: 0,
+          mode: SendRemainingValue,
           body: TokenTransfer{
             queryId: msg.queryId,
             amount: amountOfAJettonToSend,
             destination: msg.from,
             responseDestination: null,
             customPayload: null,
-            forwardTonAmount: 0,
+            forwardTonAmount: ton("0.01"),
             forwardPayload: emptySlice()
           }.toCell()
         });
@@ -141,7 +141,7 @@ contract Task3 with Deployable {
         destination: msg.from,
         responseDestination: null,
         customPayload: null,
-        forwardTonAmount: 0,
+        forwardTonAmount: ton("0.01"),
         forwardPayload: emptySlice()
       }.toCell()
     );
