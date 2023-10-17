@@ -83,7 +83,7 @@ contract Task4 with Deployable {
       send(SendParameters{
         to: self.lockNft!!,
         value: 0,
-        mode: SendRemainingBalance,
+        mode: SendRemainingValue,
         body: Transfer { 
           queryId: 0,            
           newOwner: self.lockOwner!!, 
