@@ -132,15 +132,14 @@ contract Task5 with Deployable {
     while (i < self.nftsLen) {            // loop while a condition is true
       send(SendParameters{
         to: self.nftsArr.get(i)!!,
-        bounce: true,
-        value: 0,
-        mode: SendRemainingValue + SendIgnoreErrors,
+        value: ton("0.8"),
+        mode: 0,
         body: Transfer { 
-          queryId: msg.queryId + i,            
+          queryId: msg.queryId + i,
           newOwner: self.owner, 
           responseDestination: self.owner, 
           customPayload: null, 
-          forwardAmount: ton("1"), 
+          forwardAmount: 0, 
           forwardPayload: emptySlice() 
         }.toCell()
       });
