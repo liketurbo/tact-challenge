@@ -118,7 +118,7 @@ contract Task5 with Deployable {
         to: sender(),
         bounce: true,
         value: myBalance() - context().value - self.MinTonForStorage,
-        mode: SendRemainingValue + SendIgnoreErrors,
+        mode: SendRemainingValue,
         body: AdminFetchProfit {
           queryId: msg.queryId
         }.toCell()
