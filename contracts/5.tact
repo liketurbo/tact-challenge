@@ -98,8 +98,11 @@ contract Task5 with Deployable {
           }.toCell()
         });
       } else {
-        self.reply(
-          Transfer { 
+        send(SendParameters{
+          to: sender(),
+          value: 0,
+          mode: SendRemainingValue + SendIgnoreErrors,
+          body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
             responseDestination: msg.prevOwner, 
@@ -107,7 +110,7 @@ contract Task5 with Deployable {
             forwardAmount: 0, 
             forwardPayload: emptySlice() 
           }.toCell()
-        );
+        });
       }
     }
   }
