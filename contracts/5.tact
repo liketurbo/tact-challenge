@@ -87,7 +87,7 @@ contract Task5 with Deployable {
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
-        nativeReserve(myBalance() + self.Commission, 0);
+        nativeReserve(myBalance() + self.Commission, 2);
         send(SendParameters{
           to: nft,
           value: 0,
