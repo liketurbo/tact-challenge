@@ -86,8 +86,8 @@ contract Task5 with Deployable {
         let nft: Address = self.nftsRetain(i);
         send(SendParameters{
           to: nft,
-          value: 0,
-          mode: SendRemainingValue,
+          value: context().value - ton("2"),
+          mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
