@@ -86,25 +86,20 @@ contract Task5 with Deployable {
         let nft: Address = self.nftsRetain(i);
         send(SendParameters{
           to: nft,
-          bounce: true,
-          value: ton("0.1"),
-          mode: SendIgnoreErrors,
+          value: 0,
+          mode: SendRemainingValue,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
             responseDestination: msg.prevOwner, 
             customPayload: null, 
-            forwardAmount: ton("0.1"), 
+            forwardAmount: 0, 
             forwardPayload: emptySlice() 
           }.toCell()
         });
       } else {
-        send(SendParameters{
-          to: sender(),
-          bounce: true,
-          value: context().value,
-          mode: SendIgnoreErrors,
-          body: Transfer { 
+        self.reply(
+          Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
             responseDestination: msg.prevOwner, 
@@ -112,7 +107,7 @@ contract Task5 with Deployable {
             forwardAmount: context().value, 
             forwardPayload: emptySlice() 
           }.toCell()
-        });
+        );
       }
     }
   }
