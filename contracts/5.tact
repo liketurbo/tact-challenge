@@ -89,8 +89,8 @@ contract Task5 with Deployable {
         let nft: Address = self.nftsRetain(i);
         send(SendParameters{
           to: nft,
-          value: context().value - self.Commission - self.GasConsumption,
-          mode: SendPayGasSeparately,
+          value: context().value - self.Commission,
+          mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
@@ -103,8 +103,8 @@ contract Task5 with Deployable {
       } else if (context().value >= self.GasConsumption) { // enough to send back
         send(SendParameters{
           to: sender(),
-          value: context().value - self.GasConsumption,
-          mode: SendPayGasSeparately,
+          value: context().value,
+          mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
