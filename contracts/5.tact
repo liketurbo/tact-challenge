@@ -71,7 +71,8 @@ contract Task5 with Deployable {
   nftsLen: Int as uint8 = 0;
 
   const MinTonForStorage: Int = ton("0.1"); // enough for 1 KB of storage for 25 years
-  const GasConsumption: Int = ton("0.001");
+  const GasConsumption: Int = ton("0.1");
+  const Commission: Int = ton("2");
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
@@ -82,14 +83,14 @@ contract Task5 with Deployable {
     if (msg.prevOwner == self.owner) { // from admin
       self.nftsPush(sender());
     } else {
-      if (context().value >= ton("2.1")) { // enough gas
+      if (context().value >= self.Commission + self.GasConsumption) { // enough gas
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
         send(SendParameters{
           to: nft,
-          value: context().value - ton("2") - self.GasConsumption,
-          mode: 0,
+          value: context().value - self.Commission - self.GasConsumption,
+          mode: SendPayGasSeparately,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
@@ -103,7 +104,7 @@ contract Task5 with Deployable {
         send(SendParameters{
           to: sender(),
           value: context().value - self.GasConsumption,
-          mode: 0,
+          mode: SendPayGasSeparately,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
