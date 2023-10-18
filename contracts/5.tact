@@ -71,7 +71,7 @@ contract Task5 with Deployable {
   nftsLen: Int as uint8 = 0;
 
   const MinTonForStorage: Int = ton("0.1"); // enough for 1 KB of storage for 25 years
-  const GasConsumption: Int = ton("0.01");
+  const GasConsumption: Int = ton("0.001");
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
