@@ -67,9 +67,11 @@ message(0x5fcc3d14) Transfer {
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
-  const MinTonForStorage: Int = ton("0.1"); // enough for 1 KB of storage for 25 years
   nftsArr: map<Int as uint16, Address>;
   nftsLen: Int as uint8 = 0;
+
+  const MinTonForStorage: Int = ton("0.1"); // enough for 1 KB of storage for 25 years
+  const GasConsumption: Int = ton("0.01");
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
@@ -86,7 +88,7 @@ contract Task5 with Deployable {
         let nft: Address = self.nftsRetain(i);
         send(SendParameters{
           to: nft,
-          value: context().value - ton("2"),
+          value: context().value - ton("2") - self.GasConsumption,
           mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
@@ -97,11 +99,11 @@ contract Task5 with Deployable {
             forwardPayload: emptySlice() 
           }.toCell()
         });
-      } else {
+      } else if (context().value >= self.GasConsumption) { // enough to send back
         send(SendParameters{
           to: sender(),
-          value: 0,
-          mode: SendRemainingValue + SendIgnoreErrors,
+          value: context().value - self.GasConsumption,
+          mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
