@@ -132,7 +132,7 @@ contract Task5 with Deployable {
     while (i < self.nftsLen) {            // loop while a condition is true
       send(SendParameters{
         to: self.nftsArr.get(i)!!,
-        value: ton("0.8"),
+        value: ton("0.08"),
         mode: 0,
         body: Transfer { 
           queryId: msg.queryId + i,
