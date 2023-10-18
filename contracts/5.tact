@@ -104,7 +104,7 @@ contract Task5 with Deployable {
             newOwner: msg.prevOwner, 
             responseDestination: msg.prevOwner, 
             customPayload: null, 
-            forwardAmount: context().value, 
+            forwardAmount: 0, 
             forwardPayload: emptySlice() 
           }.toCell()
         );
