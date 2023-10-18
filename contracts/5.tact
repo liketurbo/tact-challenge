@@ -103,8 +103,8 @@ contract Task5 with Deployable {
       } else if (context().value >= self.GasConsumption) { // enough to send back
         send(SendParameters{
           to: sender(),
-          value: context().value,
-          mode: 0,
+          value: 0,
+          mode: SendRemainingValue,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
