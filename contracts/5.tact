@@ -87,10 +87,11 @@ contract Task5 with Deployable {
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
+        nativeReserve(myBalance() + self.Commission, 0);
         send(SendParameters{
           to: nft,
-          value: context().value - self.Commission,
-          mode: 0,
+          value: 0,
+          mode: SendRemainingValue,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
