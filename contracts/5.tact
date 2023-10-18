@@ -87,7 +87,6 @@ contract Task5 with Deployable {
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
-        nativeReserve(myBalance() + self.Commission, 2);
         send(SendParameters{
           to: nft,
           value: 0,
@@ -101,7 +100,7 @@ contract Task5 with Deployable {
             forwardPayload: emptySlice() 
           }.toCell()
         });
-      } else {
+      } else if (context().value >= self.GasConsumption) { // enough to send back
         send(SendParameters{
           to: sender(),
           value: 0,
