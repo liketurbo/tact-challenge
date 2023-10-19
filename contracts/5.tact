@@ -127,7 +127,6 @@ contract Task5 with Deployable {
     nativeReserve(self.MinTonForStorage, 0);
     send(SendParameters{
         to: sender(),
-        bounce: true,
         value: 0, 
         mode: SendRemainingBalance,
         body: AdminFetchProfit {
@@ -144,7 +143,7 @@ contract Task5 with Deployable {
     while (i < self.nftsLen) {
       send(SendParameters{
         to: self.nftsArr.get(i)!!,
-        value: ton("0.01"),
+        value: ton("0.04"),
         mode: 0,
         body: Transfer { 
           queryId: i,
