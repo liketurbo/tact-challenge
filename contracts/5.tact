@@ -141,10 +141,10 @@ contract Task5 with Deployable {
     while (i < self.nftsLen) {
       send(SendParameters{
         to: self.nftsArr.get(i)!!,
-        value: ton("0.08") / 1000,
+        value: ton("0.06"),
         mode: 0,
         body: Transfer { 
-          queryId: msg.queryId + i,
+          queryId: msg.queryId,
           newOwner: self.owner, 
           responseDestination: self.owner, 
           customPayload: null, 
