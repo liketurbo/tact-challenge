@@ -123,7 +123,7 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalProfit) {
-    require(sender() == self.owner, "Insufficient privelegies");
+    require(sender() == self.owner, "Insufficient privileges");
     nativeReserve(self.MinTonForStorage, 0);
     send(SendParameters{
         to: sender(),
