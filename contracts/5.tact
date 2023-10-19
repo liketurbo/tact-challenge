@@ -84,7 +84,7 @@ contract Task5 with Deployable {
       self.nftsPush(sender());
     } else {
       if (context().value >= (self.Commission + self.GasConsumption)) { // enough gas
-        nativeReserve(context().value - self.Commission, 3);
+        nativeReserve(context().value - self.Commission, 1);
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
@@ -102,7 +102,7 @@ contract Task5 with Deployable {
           }.toCell()
         });
       } else {
-        nativeReserve(context().value, 3);
+        nativeReserve(context().value, 1);
         send(SendParameters{
           to: sender(),
           value: 0,
