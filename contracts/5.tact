@@ -84,14 +84,14 @@ contract Task5 with Deployable {
       self.nftsPush(sender());
     } else {
       if (context().value >= self.Commission + self.GasConsumption) { // enough gas
-        nativeReserve(context().value - self.Commission, 1);
+        nativeReserve(myBalance() + self.Commission, 0);
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
         send(SendParameters{
           to: nft,
           value: 0,
-          mode: SendRemainingBalance,
+          mode: SendRemainingValue,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
