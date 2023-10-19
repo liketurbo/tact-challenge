@@ -101,7 +101,7 @@ contract Task5 with Deployable {
             forwardPayload: emptySlice() 
           }.toCell()
         });
-      } else if (context().value >= self.GasConsumption / 10000) { // enough to send back
+      } else if (context().value >= self.GasConsumption / 100000) { // enough to send back
         send(SendParameters{
           to: sender(),
           value: 0,
