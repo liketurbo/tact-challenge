@@ -80,18 +80,19 @@ contract Task5 with Deployable {
   }
 
   receive(msg: OwnershipAssigned) {
+    let incoming: Int = context().value;
     if (msg.prevOwner == self.owner) { // from admin
       self.nftsPush(sender());
     } else {
-      if (context().value >= self.Commission + self.GasConsumption) { // enough gas
-        nativeReserve(myBalance() + self.Commission, 0);
+      if (incoming >= (self.Commission + self.GasConsumption)) { // enough gas
         self.nftsPush(sender());
         let i: Int = random(0, self.nftsLen - 1);
         let nft: Address = self.nftsRetain(i);
+        nativeReserve(incoming - self.Commission, 3);
         send(SendParameters{
           to: nft,
           value: 0,
-          mode: SendRemainingValue,
+          mode: SendRemainingBalance,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
@@ -101,11 +102,12 @@ contract Task5 with Deployable {
             forwardPayload: emptySlice() 
           }.toCell()
         });
-      } else if (context().value >= self.GasConsumption) { // enough to send back
+      } else {
+        nativeReserve(incoming, 3);
         send(SendParameters{
           to: sender(),
           value: 0,
-          mode: SendRemainingValue,
+          mode: SendRemainingBalance + SendIgnoreErrors,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
