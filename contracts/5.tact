@@ -137,13 +137,14 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
-    require(context().value >= (ton("1") + self.nftsLen * ton("0.08")), "Insufficent funds");
+    require(context().value >= ton("1") + self.nftsLen * ton("0.08"), "Insufficent funds");
     require(sender() == self.owner, "Invalid sender");
+    nativeReserve(myBalance() - context().value, 0);
     let i: Int = 0;
     while (i < self.nftsLen) {
       send(SendParameters{
         to: self.nftsArr.get(i)!!,
-        value: ton("0.06"),
+        value: ton("0.08"),
         mode: 0,
         body: Transfer { 
           queryId: msg.queryId,
@@ -160,7 +161,7 @@ contract Task5 with Deployable {
     send(SendParameters{
       to: self.owner,
       value: 0,
-      mode: SendRemainingValue + SendIgnoreErrors
+      mode: SendRemainingBalance + SendIgnoreErrors
     });
   }
 
