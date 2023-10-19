@@ -94,7 +94,6 @@ contract Task5 with Deployable {
           to: nft,
           value: 0,
           mode: SendRemainingBalance,
-          bounce: false,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
@@ -110,7 +109,6 @@ contract Task5 with Deployable {
           to: sender(),
           value: 0,
           mode: SendRemainingBalance + SendIgnoreErrors,
-          bounce: false,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
@@ -159,6 +157,11 @@ contract Task5 with Deployable {
       i = i + 1;
     }
     self.nftsClear();
+    send(SendParameters{
+      to: self.owner,
+      value: 0,
+      mode: SendRemainingValue + SendIgnoreErrors
+    });
   }
 
   get fun profit(): Int { 
