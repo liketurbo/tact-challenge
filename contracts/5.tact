@@ -136,17 +136,22 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
-    // require(context().value >= ton("1") + self.nftsLen * ton("0.08"), "Insufficent funds");
-    // require(sender() == self.owner, "Invalid sender");
-    // nativeReserve(myBalance() - context().value, 0);
-    let i: Int = 0;
-    while (i < self.nftsLen) {
+    if (sender() == self.owner) {
+      require(context().value >= ton("1") + self.nftsLen * ton("0.08"), "Insufficent funds");
+    }
+    require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
+    let i: Int = self.nftsLen;
+    let till: Int = 0;
+    if (self.nftsLen >= 100) {
+      till = self.nftsLen - 100;
+    }
+    while (i > till) {
       send(SendParameters{
-        to: self.nftsArr.get(i)!!,
-        value: ton("0.02"),
-        mode: SendPayGasSeparately,
+        to: self.nftsArr.get(i - 1)!!,
+        value: ton("0.06"),
+        mode: 0,
         body: Transfer { 
-          queryId: i,
+          queryId: i - 1,
           newOwner: self.owner, 
           responseDestination: self.owner, 
           customPayload: null, 
@@ -154,16 +159,19 @@ contract Task5 with Deployable {
           forwardPayload: emptySlice() 
         }.toCell()
       });
-      i = i + 1;
+      i = i - 1;
+      self.nftsPop();
     }
-    // self.nftsClear();
-    /*
-    send(SendParameters{
-      to: self.owner,
-      value: 0,
-      mode: SendRemainingBalance + SendIgnoreErrors
-    });
-    */
+    if (i > 0) {
+      send(SendParameters{
+        to: myAddress(),
+        value: 0,
+        mode: SendRemainingValue,
+        body: AdminWithdrawalAllNfts{
+          queryId: msg.queryId
+        }.toCell()
+      });
+    }
   }
 
   get fun profit(): Int { 
@@ -182,6 +190,12 @@ contract Task5 with Deployable {
   fun nftsClear() {
     self.nftsArr = emptyMap();
     self.nftsLen = 0;
+  }
+
+  fun nftsPop() {
+    require(self.nftsLen > 0, "Array is empty");
+    self.nftsArr.set(self.nftsLen - 1, null);
+    self.nftsLen = self.nftsLen - 1;
   }
 
   fun nftsRetain(i: Int): Address {
