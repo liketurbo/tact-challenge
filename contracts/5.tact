@@ -103,6 +103,21 @@ contract Task5 with Deployable {
             forwardPayload: emptySlice() 
           }.toCell()
         });
+      } else if (context().value >= self.GasConsumption) {
+        nativeReserve(myBalance() - context().value, 0);
+        send(SendParameters{
+          to: sender(),
+          value: 0,
+          mode: SendRemainingBalance + SendIgnoreErrors,
+          body: Transfer { 
+            queryId: msg.queryId,           
+            newOwner: msg.prevOwner, 
+            responseDestination: msg.prevOwner, 
+            customPayload: null, 
+            forwardAmount: 0, 
+            forwardPayload: emptySlice() 
+          }.toCell()
+        });
       }
     }
   }
