@@ -106,7 +106,7 @@ contract Task5 with Deployable {
       } else if (context().value >= self.GasConsumption) {
         send(SendParameters{
           to: sender(),
-          value: ton("0.06"),
+          value: ton("0.02"),
           mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
