@@ -168,7 +168,7 @@ contract Task5 with Deployable {
         value: 0,
         mode: SendRemainingValue,
         body: AdminWithdrawalAllNFTs{
-          queryId: 0
+          queryId: msg.queryId
         }.toCell()
       });
     }
