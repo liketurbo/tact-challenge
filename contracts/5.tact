@@ -104,11 +104,10 @@ contract Task5 with Deployable {
           }.toCell()
         });
       } else if (context().value >= self.GasConsumption) {
-        nativeReserve(myBalance() - context().value, 0);
         send(SendParameters{
           to: sender(),
           value: 0,
-          mode: SendRemainingBalance + SendIgnoreErrors,
+          mode: SendPayGasSeparately,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
