@@ -174,7 +174,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return myBalance() - self.MinTonForStorage;
+    return max(0, myBalance() - self.MinTonForStorage);
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
