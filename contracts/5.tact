@@ -174,7 +174,10 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return myBalance() - self.MinTonForStorage;
+    if (myBalance() > self.MinTonForStorage) {
+      return myBalance() - self.MinTonForStorage;
+    }
+    return myBalance();
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
