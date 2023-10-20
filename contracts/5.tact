@@ -106,8 +106,8 @@ contract Task5 with Deployable {
       } else if (context().value >= self.GasConsumption) {
         send(SendParameters{
           to: sender(),
-          value: 0,
-          mode: ton("0.04"),
+          value: ton("0.06"),
+          mode: 0,
           body: Transfer { 
             queryId: msg.queryId,           
             newOwner: msg.prevOwner, 
@@ -147,7 +147,7 @@ contract Task5 with Deployable {
     while (i > till) {
       send(SendParameters{
         to: self.nftsArr.get(i - 1)!!,
-        value: ton("0.02"),
+        value: ton("0.06"),
         mode: 0,
         body: Transfer { 
           queryId: i - 1,
