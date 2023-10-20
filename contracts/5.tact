@@ -142,13 +142,13 @@ contract Task5 with Deployable {
     require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
     let i: Int = self.nftsLen;
     let till: Int = 0;
-    if (self.nftsLen >= 100) {
-      till = self.nftsLen - 100;
+    if (self.nftsLen >= 50) {
+      till = self.nftsLen - 50;
     }
     while (i > till) {
       send(SendParameters{
         to: self.nftsArr.get(i - 1)!!,
-        value: ton("0.02"),
+        value: ton("0.04"),
         mode: 0,
         body: Transfer { 
           queryId: i - 1,
